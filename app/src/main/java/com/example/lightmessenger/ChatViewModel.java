@@ -30,6 +30,10 @@ public class ChatViewModel extends ViewModel {
     private String currentUserId;
     private String otherUserId;
 
+    public void setUserOnline(boolean isOnline) {
+        referenceUsers.child(currentUserId).child("online").setValue(isOnline);
+    }
+
     public ChatViewModel(String currentUserId, String otherUserId) {
         this.currentUserId = currentUserId;
         this.otherUserId = otherUserId;
@@ -50,7 +54,7 @@ public class ChatViewModel extends ViewModel {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 List<Message> messageList = new ArrayList<>();
-                for (DataSnapshot dataSnapshot: snapshot.getChildren()) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Message message = dataSnapshot.getValue(Message.class);
                     messageList.add(message);
                 }

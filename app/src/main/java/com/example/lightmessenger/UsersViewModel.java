@@ -25,6 +25,14 @@ public class UsersViewModel extends ViewModel {
     private MutableLiveData<FirebaseUser> user = new MutableLiveData<>();
     private MutableLiveData<List<User>> users = new MutableLiveData<>();
 
+    public void setUserOnline(boolean isOnline) {
+        FirebaseUser firebaseUser = auth.getCurrentUser();
+        if (firebaseUser == null) {
+            return;
+        }
+        usersReference.child(firebaseUser.getUid()).child("online").setValue(isOnline);
+    }
+
     public UsersViewModel() {
         auth = FirebaseAuth.getInstance();
         auth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
@@ -73,6 +81,7 @@ public class UsersViewModel extends ViewModel {
     }
 
     public void logout() {
+        setUserOnline(false);
         auth.signOut();
     }
 }
