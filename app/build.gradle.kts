@@ -34,8 +34,8 @@ android {
 
 dependencies {
 
-
-
+    // Add the dependency for the Realtime Database library
+    implementation("com.google.firebase:firebase-database")
     // Authentication
     implementation("com.google.firebase:firebase-auth")
     //Firebase

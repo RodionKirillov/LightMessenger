@@ -6,12 +6,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.google.firebase.auth.FirebaseUser;
 
 public class RegistrationActivity extends AppCompatActivity {
 
@@ -22,11 +27,15 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText editTextAge;
     private Button buttonSignUp;
 
+    private RegistrationViewModel viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
         initViews();
+        viewModel = new ViewModelProvider(this).get(RegistrationViewModel.class);
+        observedViewModel();
 
         buttonSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,15 +45,47 @@ public class RegistrationActivity extends AppCompatActivity {
                 String name = getTrimmedValue(editTextName);
                 String lastName = getTrimmedValue(editTextLastName);
                 int age = Integer.parseInt(getTrimmedValue(editTextAge));
-                //sign Up
+                viewModel.signUp(email, password, name, lastName, age);
+            }
+        });
+    }
+
+    private void observedViewModel() {
+        viewModel.getError().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String errorMessage) {
+                if (errorMessage != null) {
+                    Toast.makeText(
+                            RegistrationActivity.this,
+                            errorMessage,
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            }
+        });
+
+        viewModel.getUser().observe(this, new Observer<FirebaseUser>() {
+            @Override
+            public void onChanged(FirebaseUser firebaseUser) {
+                if (firebaseUser != null) {
+                    Intent intent = UsersActivity.newIntent(
+                            RegistrationActivity.this,
+                            firebaseUser.getUid()
+                    );
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
     }
 
     private String getTrimmedValue(EditText editText) {
-        return editText.getText().toString().trim();
+        if (editText == null) {
+            return "DEFOULT_TEXT";
+        } else {
+            return editText.getText().toString().trim();
+        }
     }
-
 
     private void initViews() {
         editTextEmail = findViewById(R.id.editTextEmail);
